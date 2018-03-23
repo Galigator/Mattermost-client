@@ -37,13 +37,23 @@ public class MatterMostBotClient
 	private final WebClient _client;
 	private final WebSocketClient _asyncClient;
 
-	public MatterMostBotClient(final String host, final String personalToken, final Optional<WsSocketListener> listener)
+	public MatterMostBotClient(final String host, final String personalToken, final Optional<WsSocketListener>
+			listener, boolean secure)
 	{
-		final WebClient client = WebClient.create("http://" + host + apiV4);
+		String protocol = "http://";
+		if (secure)
+			protocol= "https://";
+
+		final WebClient client = WebClient.create(protocol + host + apiV4);
 		final String bearer = "Bearer " + personalToken;
 		client.header("Authorization", bearer);
 		_client = client;
 		_asyncClient = new WebSocketClient("ws://" + host + apiV4 + "/websocket", bearer, listener);
+	}
+
+	public MatterMostBotClient(final String host, final String personalToken, final Optional<WsSocketListener> listener)
+	{
+		this(host, personalToken, listener, false);
 	}
 
 	public MatterMostBotClient(final String host, final String personalToken, final WsSocketListener listener)
