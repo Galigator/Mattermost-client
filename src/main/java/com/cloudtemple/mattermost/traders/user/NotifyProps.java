@@ -14,6 +14,13 @@ public class NotifyProps
 	public String mention_keys;
 	public String push;
 	public String username;
+        public String from_webhook;
+        public String webhook_display_name;
+        public String addedUsername;
+        public String comments;
+        public long desktop_duration;
+        public String push_status;
+        public String user_id;
 
 	public String getUsername()
 	{
@@ -94,4 +101,75 @@ public class NotifyProps
 	{
 		this.push = push;
 	}
+
+        public String getFrom_webhook()
+        {
+                return from_webhook;
+        }
+
+        public void setFrom_webhook(final String from_webhook)
+        {
+                this.from_webhook = from_webhook;
+        }
+
+        public String getWebhook_display_name()
+        {
+                return webhook_display_name;
+        }
+
+        public void setWebhook_display_name(final String webhook_display_name)
+        {
+                this.webhook_display_name = webhook_display_name;
+        }
+
+        public String getAddedUsername()
+        {
+                return addedUsername;
+        }
+
+        public void setAddedUsername(final String addedUsername)
+        {
+                this.addedUsername = addedUsername;
+        }
+
+        public String getComments()
+        {
+                return comments;
+        }
+
+        public void setComments(final String comments)
+        {
+                this.comments = comments;
+        }
+
+        public long getDesktop_duration()
+        {
+                return desktop_duration;
+        }
+
+        public void setDesktop_duration(final long desktop_duration)
+        {
+                this.desktop_duration = desktop_duration;
+        }
+
+        public String getPush_status()
+        {
+                return push_status;
+        }
+
+        public void setPush_status(final String push_status)
+        {
+                this.push_status = push_status;
+        }
+
+        public String getUser_id()
+        {
+                return user_id;
+        }
+
+        public void setUser_id(final String user_id)
+        {
+                this.user_id = user_id;
+        }
+
 }

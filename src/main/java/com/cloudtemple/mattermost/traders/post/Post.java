@@ -33,6 +33,7 @@ public class Post
 	public List<String> filenames;
 	public List<String> file_ids;
 	public boolean is_pinned; // <- not in doc
+        public boolean has_reactions;
 	public String hashtags; // <- not in doc
 	public String pending_post_id;
 
@@ -121,6 +122,16 @@ public class Post
 	{
 		this.is_pinned = is_pinned;
 	}
+
+        public boolean isHas_reactions()
+        {
+                return has_reactions;
+        }
+
+        public void setHas_Reactions(final boolean has_reactions)
+        {
+                this.has_reactions = has_reactions;
+        }
 
 	public long getEdit_at()
 	{
