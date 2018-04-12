@@ -97,3 +97,17 @@ You need to **connect()** to receive message from Mattermost.
 	System.out.println(post.id + " " + post.message + " " + post.type);
 ```
 
+### Create an personal acces token
+
+Here 8 configurations steps that work for me using a Mattermost 4.1.
+Maybe it is possible to do something shorter, but this work.
+
+ - 1  create an account (Galigator)
+ - 2  create a team
+ - 3  System console > Custom Integration > Enable personal token
+ - 4  System console > Signup > Enable Open Server > false
+ - 5  Team Settings > Allow an yser with an account on this server to join this team
+ - 6  System console > Users > (Galigator) > Manage Roles > Allow Personnal token > Post : All
+ - 7  Empty the browser cache
+ - 8  (as Galigator) > Account Settings > Security > Personal Acces Token > Create new Token
+
