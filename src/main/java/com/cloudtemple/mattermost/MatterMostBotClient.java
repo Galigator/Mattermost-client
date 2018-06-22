@@ -1,5 +1,13 @@
 package com.cloudtemple.mattermost;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import javax.ws.rs.core.Response;
+
 import com.cloudtemple.mattermost.traders.ApiV4Exception;
 import com.cloudtemple.mattermost.traders.channel.Channel;
 import com.cloudtemple.mattermost.traders.channel.ChannelId;
@@ -14,272 +22,221 @@ import com.cloudtemple.mattermost.traders.team.Team;
 import com.cloudtemple.mattermost.traders.team.TeamId;
 import com.cloudtemple.mattermost.traders.user.User;
 import com.cloudtemple.mattermost.traders.user.UserId;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Optional;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.ws.rs.core.Response;
+
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.codehaus.jackson.map.MappingJsonFactory;
 import org.codehaus.jackson.map.ObjectMapper;
 
-public class MatterMostBotClient
-{
-	public static final Logger _logger = Logger.getLogger(MatterMostBotClient.class.getName());
-	static
-	{
-		_logger.setLevel(Level.INFO);
-	}
+public class MatterMostBotClient {
 
-	public static final String apiV4 = "/api/v4";
-	private final ObjectMapper _json = new ObjectMapper();
-	private final WebClient _client;
-	private final WebSocketClient _asyncClient;
+    public static final Logger _logger = Logger.getLogger(MatterMostBotClient.class.getName());
 
-	public MatterMostBotClient(final String host, final String personalToken, final Optional<WsSocketListener>
-			listener, boolean secure)
-	{
-		String protocol = "http://";
-		if (secure)
-			protocol= "https://";
+    static {
+        _logger.setLevel(Level.INFO);
+    }
 
-		final WebClient client = WebClient.create(protocol + host + apiV4);
-		final String bearer = "Bearer " + personalToken;
-		client.header("Authorization", bearer);
-		_client = client;
-		_asyncClient = new WebSocketClient("ws://" + host + apiV4 + "/websocket", bearer, listener);
-	}
+    public static final String apiV4 = "/api/v4";
+    private final ObjectMapper _json = new ObjectMapper();
+    private final WebClient _client;
+    private final WebSocketClient _asyncClient;
 
-	public MatterMostBotClient(final String host, final String personalToken, final Optional<WsSocketListener> listener)
-	{
-		this(host, personalToken, listener, false);
-	}
+    public MatterMostBotClient(final String host, final String personalToken, final Optional<WsSocketListener> listener,
+            boolean secure) {
+        String protocol = "http://";
+        String wsProtocol = "ws://";
+        if (secure) {
+            protocol = "https://";
+            wsProtocol = "wss://";
+        }
 
-	public MatterMostBotClient(final String host, final String personalToken, final WsSocketListener listener)
-	{
-		this(host, personalToken, Optional.ofNullable(listener));
-	}
+        final WebClient client = WebClient.create(protocol + host + apiV4);
+        final String bearer = "Bearer " + personalToken;
+        client.header("Authorization", bearer);
+        _client = client;
+        _asyncClient = new WebSocketClient(wsProtocol + host + apiV4 + "/websocket", bearer, listener);
+    }
 
-	protected WebSocketClient asyncClient()
-	{
-		return _asyncClient;
-	}
+    public MatterMostBotClient(final String host, final String personalToken,
+            final Optional<WsSocketListener> listener) {
+        this(host, personalToken, listener, false);
+    }
 
-	public void connect(final WsSocketListener listener)
-	{
-		try
-		{
-			_asyncClient.connect(listener);
-		}
-		catch (final Exception exception)
-		{
-			throw new ApiV4Exception(exception);
-		}
-	}
+    public MatterMostBotClient(final String host, final String personalToken, final WsSocketListener listener) {
+        this(host, personalToken, Optional.ofNullable(listener));
+    }
 
-	public void connect()
-	{
-		try
-		{
-			_asyncClient.connect();
-		}
-		catch (final Exception exception)
-		{
-			throw new ApiV4Exception(exception);
-		}
-	}
+    protected WebSocketClient asyncClient() {
+        return _asyncClient;
+    }
 
-	public void disconnect()
-	{
-		_asyncClient.close();
-	}
+    public void connect(final WsSocketListener listener) {
+        try {
+            _asyncClient.connect(listener);
+        } catch (final Exception exception) {
+            throw new ApiV4Exception(exception);
+        }
+    }
 
-	public void await(final int seconds)
-	{
-		try
-		{
-			Thread.yield();
-			Thread.sleep(seconds * 1000);
-		}
-		catch (final Exception exception)
-		{
-			throw new ApiV4Exception(exception);
-		}
-	}
+    public void connect() {
+        try {
+            _asyncClient.connect();
+        } catch (final Exception exception) {
+            throw new ApiV4Exception(exception);
+        }
+    }
 
-	protected static String toString(final Response r)
-	{
-		try
-		{
-			try (final InputStream is = (InputStream) r.getEntity())
-			{
-				final byte[] b = new byte[1024];
-				int read = 0;
-				final StringBuffer buff = new StringBuffer();
-				while ((read = is.read(b)) > 0)
-					buff.append(new String(b, 0, read));
-				return buff.toString();
-			}
-		}
-		catch (final IOException e)
-		{
-			throw new ApiV4Exception(e);
-		}
-	}
+    public void disconnect() {
+        _asyncClient.close();
+    }
 
-	public static <T> T decode(final int status, final String str, final Class<T> t)
-	{
-		try
-		{
-			if (200 == status || 201 == status)
-				return new MappingJsonFactory().createJsonParser(str).readValueAs(t);
-			else
-				throw new ApiV4Exception(new MappingJsonFactory().createJsonParser(str).readValueAs(com.cloudtemple.mattermost.traders.Error.class));
-		}
-		catch (final IOException e)
-		{
-			_logger.log(Level.SEVERE, "", e);
-			throw new ApiV4Exception(e);
-		}
-	}
+    public void await(final int seconds) {
+        try {
+            Thread.yield();
+            Thread.sleep(seconds * 1000);
+        } catch (final Exception exception) {
+            throw new ApiV4Exception(exception);
+        }
+    }
 
-	protected static <T> T decode(final Response r, final Class<T> t)
-	{
-		final String str = toString(r);
-		_logger.fine(() -> r.getStatus() + "\tResponse : " + str);
-		return decode(r.getStatus(), str, t);
+    protected static String toString(final Response r) {
+        try {
+            try (final InputStream is = (InputStream) r.getEntity()) {
+                final byte[] b = new byte[1024];
+                int read = 0;
+                final StringBuffer buff = new StringBuffer();
+                while ((read = is.read(b)) > 0) {
+                    buff.append(new String(b, 0, read));
+                }
+                return buff.toString();
+            }
+        } catch (final IOException e) {
+            throw new ApiV4Exception(e);
+        }
+    }
 
-	}
+    public static <T> T decode(final int status, final String str, final Class<T> t) {
+        try {
+            if (200 == status || 201 == status) {
+                return new MappingJsonFactory().createJsonParser(str).readValueAs(t);
+            } else {
+                throw new ApiV4Exception(new MappingJsonFactory().createJsonParser(str)
+                        .readValueAs(com.cloudtemple.mattermost.traders.Error.class));
+            }
+        } catch (final IOException e) {
+            _logger.log(Level.SEVERE, "", e);
+            throw new ApiV4Exception(e);
+        }
+    }
 
-	private <T> T get(final String path, final Class<T> t)
-	{
-		_logger.fine(() -> "GET Path : " + path);
-		final Response r;
-		synchronized (_client) // If you don't want synchronization, look at the webSocket client.
-		{
-			r = _client.replacePath(path).accept("application/json").get();
-		}
-		return decode(r, t);
-	}
+    protected static <T> T decode(final Response r, final Class<T> t) {
+        final String str = toString(r);
+        _logger.fine(() -> r.getStatus() + "\tResponse : " + str);
+        return decode(r.getStatus(), str, t);
+    }
 
-	private <T> T post(final String path, final Object jsonPostBody, final Class<T> t)
-	{
-		try
-		{
-			final String str = (jsonPostBody instanceof String) ? (String) jsonPostBody : _json.writeValueAsString(jsonPostBody);
-			_logger.fine(() -> "POST Path : " + path + "\t" + str);
-			final Response r;
-			synchronized (_client)
-			{
-				r = _client.replacePath(path).accept("application/json").post(str);
-			}
-			return decode(r, t);
-		}
-		catch (final Exception e)
-		{
-			throw new ApiV4Exception(e);
-		}
-	}
+    private <T> T get(final String path, final Class<T> t) {
+        _logger.fine(() -> "GET Path : " + path);
+        final Response r;
+        synchronized (_client) // If you don't want synchronization, look at the webSocket client.
+        {
+            r = _client.replacePath(path).accept("application/json").get();
+        }
+        return decode(r, t);
+    }
 
-	public User getUsersMe()
-	{
-		return get("/users/me", User.class);
-	}
+    private <T> T post(final String path, final Object jsonPostBody, final Class<T> t) {
+        try {
+            final String str = (jsonPostBody instanceof String) ? (String) jsonPostBody : _json.writeValueAsString(
+                    jsonPostBody);
+            _logger.fine(() -> "POST Path : " + path + "\t" + str);
+            final Response r;
+            synchronized (_client) {
+                r = _client.replacePath(path).accept("application/json").post(str);
+            }
+            return decode(r, t);
+        } catch (final Exception e) {
+            throw new ApiV4Exception(e);
+        }
+    }
 
-	public User getUser(final UserId userId)
-	{
-		return get("/users/" + userId, User.class);
-	}
+    public User getUsersMe() {
+        return get("/users/me", User.class);
+    }
 
-	public User[] getUsers()
-	{
-		return get("/users", User[].class);
-	}
+    public User getUser(final UserId userId) {
+        return get("/users/" + userId, User.class);
+    }
 
-	public Team[] getTeams()
-	{
-		return get("/teams", Team[].class);
-	}
+    public User[] getUsers() {
+        return get("/users", User[].class);
+    }
 
-	public Team getTeam(final String teamName)
-	{
-		return get("/teams/name/" + teamName, Team.class);
-	}
+    public Team[] getTeams() {
+        return get("/teams", Team[].class);
+    }
 
-	public Team[] getMyTeams()
-	{
-		return get("/users/me/teams", Team[].class);
-	}
+    public Team getTeam(final String teamName) {
+        return get("/teams/name/" + teamName, Team.class);
+    }
 
-	public Channel getTeamChannelByName(final TeamId teamId, final String channelName)
-	{
-		return get("/teams/" + teamId + "/channels/name/" + channelName, Channel.class);
-	}
+    public Team[] getMyTeams() {
+        return get("/users/me/teams", Team[].class);
+    }
 
-	public Post sendPost(final PostRequest postRequest)
-	{
-		return post("/posts", postRequest, Post.class);
-	}
+    public Channel getTeamChannelByName(final TeamId teamId, final String channelName) {
+        return get("/teams/" + teamId + "/channels/name/" + channelName, Channel.class);
+    }
 
-	public Post sendPost(final ChannelId channelId, final String textMessage)
-	{
-		return post("/posts", new PostRequest(channelId, textMessage, null, null), Post.class);
-	}
+    public Post sendPost(final PostRequest postRequest) {
+        return post("/posts", postRequest, Post.class);
+    }
 
-	public PostList getPostsForChannel(final ChannelId channelId)
-	{
-		return get("/channels/" + channelId + "/posts", PostList.class);
-	}
+    public Post sendPost(final ChannelId channelId, final String textMessage) {
+        return post("/posts", new PostRequest(channelId, textMessage, null, null), Post.class);
+    }
 
-	public Post getPost(final PostId postId)
-	{
-		return get("/posts/" + postId, Post.class);
-	}
+    public PostList getPostsForChannel(final ChannelId channelId) {
+        return get("/channels/" + channelId + "/posts", PostList.class);
+    }
 
-	public PostList getThread(final PostId postId)
-	{
-		return get("/posts/" + postId + "/thread" + postId, PostList.class);
-	}
+    public Post getPost(final PostId postId) {
+        return get("/posts/" + postId, Post.class);
+    }
 
-	public PostList getFlaggedPosts(final UserId userId)
-	{
-		return get("/users/" + userId + "/posts/flagged", PostList.class);
-	}
+    public PostList getThread(final PostId postId) {
+        return get("/posts/" + postId + "/thread" + postId, PostList.class);
+    }
 
-	public File[] getFilesInfo(final PostId postId)
-	{
-		return get("/posts/" + postId + "/files/info", File[].class);
-	}
+    public PostList getFlaggedPosts(final UserId userId) {
+        return get("/users/" + userId + "/posts/flagged", PostList.class);
+    }
 
-	public PostList searchTeamPost(final TeamId teamId, final SearchQuery query)
-	{
-		return post("/team/" + teamId + "/posts/search", query, PostList.class);
-	}
+    public File[] getFilesInfo(final PostId postId) {
+        return get("/posts/" + postId + "/files/info", File[].class);
+    }
 
-	public PostList searchTeamPost(final TeamId teamId, final String terms, final boolean is_or_search)
-	{
-		return searchTeamPost(teamId, new SearchQuery(terms, is_or_search));
-	}
+    public PostList searchTeamPost(final TeamId teamId, final SearchQuery query) {
+        return post("/team/" + teamId + "/posts/search", query, PostList.class);
+    }
 
-	public Status performPostAction(final PostId postId, final String actionId, final Object actionDescription)
-	{
-		return post("/posts/" + postId + "/actions/" + actionId, actionDescription, Status.class);
-	}
+    public PostList searchTeamPost(final TeamId teamId, final String terms, final boolean is_or_search) {
+        return searchTeamPost(teamId, new SearchQuery(terms, is_or_search));
+    }
 
-	public Channel createDirectChannel(final UserId alpha, final UserId beta)
-	{
-		final String[] message = { alpha.getId(), beta.getId() };
-		return post("/channels/direct", message, Channel.class);
-	}
+    public Status performPostAction(final PostId postId, final String actionId, final Object actionDescription) {
+        return post("/posts/" + postId + "/actions/" + actionId, actionDescription, Status.class);
+    }
 
-	public Channel getChannel(final ChannelId channelId)
-	{
-		return get("/channels/" + channelId, Channel.class);
-	}
+    public Channel createDirectChannel(final UserId alpha, final UserId beta) {
+        final String[] message = {alpha.getId(), beta.getId()};
+        return post("/channels/direct", message, Channel.class);
+    }
 
-	public Channel[] getChannelsForUser(final UserId userId, final TeamId teamId)
-	{
-		return get("/users/" + userId + "/teams/" + teamId + "/channels", Channel[].class);
-	}
+    public Channel getChannel(final ChannelId channelId) {
+        return get("/channels/" + channelId, Channel.class);
+    }
+
+    public Channel[] getChannelsForUser(final UserId userId, final TeamId teamId) {
+        return get("/users/" + userId + "/teams/" + teamId + "/channels", Channel[].class);
+    }
 }

@@ -20,7 +20,8 @@ public class User
 	public String position;
 	public String roles;
 	public boolean allow_marketing;
-        public boolean email_verified;
+	public boolean email_verified;
+    public Timezone timezone;
 	public NotifyProps notify_props;
 	public long last_password_update;
 	public String locale;
@@ -170,15 +171,25 @@ public class User
 		this.allow_marketing = allow_marketing;
 	}
 
-        public boolean isEmail_verified()
+    public boolean isEmail_verified()
         {
                 return email_verified;
         }
 
-        public void setEmail_verified(final boolean email_verified)
+    public void setEmail_verified(final boolean email_verified)
         {
                 this.email_verified = email_verified;
         }
+
+	public Timezone getTimezone()
+	{
+		return timezone;
+	}
+
+	public void setTimezone(final Timezone timezone)
+	{
+		this.timezone = timezone;
+	}
 
 	public NotifyProps getNotify_props()
 	{
