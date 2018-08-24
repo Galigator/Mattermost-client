@@ -20,16 +20,6 @@
 			<artifactId>cxf-rt-rs-client</artifactId>
 			<version>${org.apache.cxf.version}</version>
 		</dependency>
-		<dependency>
-			<groupId>org.apache.cxf</groupId>
-			<artifactId>cxf-rt-transports-http</artifactId>
-			<version>${org.apache.cxf.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.cxf</groupId>
-			<artifactId>cxf-rt-transports-websocket</artifactId>
-			<version>${org.apache.cxf.version}</version>
-		</dependency>
 		<!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.jaxrs/jackson-jaxrs-json-provider -->
 		<dependency>
 			<groupId>com.fasterxml.jackson.jaxrs</groupId>
@@ -41,7 +31,7 @@
 		<dependency>
 			<groupId>org.glassfish.grizzly</groupId>
 			<artifactId>grizzly-http-client</artifactId>
-			<version>1.14</version>
+			<version>1.15</version>
 		</dependency>
 	</dependencies>
 </project>

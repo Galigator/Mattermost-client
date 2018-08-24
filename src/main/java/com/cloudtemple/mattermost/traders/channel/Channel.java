@@ -28,6 +28,28 @@ public class Channel
 	public long total_msg_count;
 	public long extra_update_at;
 	public String creator_id;
+	public String scheme_id;
+	public Props props;
+
+	public Props getProps()
+	{
+		return props;
+	}
+
+	public void setProps(final Props props)
+	{
+		this.props = props;
+	}
+
+	public String getScheme_id()
+	{
+		return scheme_id;
+	}
+
+	public void setScheme_id(final String scheme_id)
+	{
+		this.scheme_id = scheme_id;
+	}
 
 	public ChannelId channelId()
 	{

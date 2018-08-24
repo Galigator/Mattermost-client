@@ -14,6 +14,7 @@ public class Team
 	public long create_at;
 	public long update_at;
 	public long delete_at;
+	public long last_team_icon_update;
 	public String company_name; // <-- not in documentation !
 	public String display_name;
 	public String name;
@@ -23,6 +24,27 @@ public class Team
 	public String allowed_domains;
 	public String invite_id; // What is this ?
 	public boolean allow_open_invite;
+	public String scheme_id;
+
+	public String getScheme_id()
+	{
+		return scheme_id;
+	}
+
+	public void setScheme_id(final String scheme_id)
+	{
+		this.scheme_id = scheme_id;
+	}
+
+	public long getLast_team_icon_update()
+	{
+		return last_team_icon_update;
+	}
+
+	public void setLast_team_icon_update(final long last_team_icon_update)
+	{
+		this.last_team_icon_update = last_team_icon_update;
+	}
 
 	public TeamId teamId()
 	{
