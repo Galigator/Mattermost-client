@@ -25,6 +25,7 @@ public class User
 	public NotifyProps notify_props;
 	public long last_password_update;
 	public String locale;
+	private long last_picture_update;
 
 	public UserId userId()
 	{
@@ -219,6 +220,16 @@ public class User
 	public void setLocale(final String locale)
 	{
 		this.locale = locale;
+	}
+
+	public long getLast_picture_update()
+	{
+		return last_picture_update;
+	}
+
+	public void setLast_picture_update(final long last_picture_update)
+	{
+		this.last_picture_update = last_picture_update;
 	}
 
 }

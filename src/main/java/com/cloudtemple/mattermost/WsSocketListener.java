@@ -1,12 +1,12 @@
 package com.cloudtemple.mattermost;
 
 import com.cloudtemple.mattermost.traders.Event;
+import com.fasterxml.jackson.databind.MappingJsonFactory;
 import com.ning.http.client.ws.WebSocket;
 import com.ning.http.client.ws.WebSocketByteListener;
 import com.ning.http.client.ws.WebSocketTextListener;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.codehaus.jackson.map.MappingJsonFactory;
 
 public interface WsSocketListener extends WebSocketTextListener, WebSocketByteListener
 {
@@ -42,7 +42,7 @@ public interface WsSocketListener extends WebSocketTextListener, WebSocketByteLi
 	{
 		try
 		{
-			onEvent(new MappingJsonFactory().createJsonParser(message).readValueAs(Event.class));
+			onEvent(new MappingJsonFactory().createParser(message).readValueAs(Event.class));
 		}
 		catch (final Exception e)
 		{
