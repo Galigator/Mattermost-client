@@ -51,6 +51,11 @@ public class MatterMostBotClient
 		_asyncClient = new WebSocketClient("ws://" + host + apiV4 + "/websocket", bearer, listener);
 	}
 
+	public MatterMostBotClient(final String host, final String personalToken)
+	{
+		this(host, personalToken, Optional.empty(), false);
+	}
+
 	public MatterMostBotClient(final String host, final String personalToken, final Optional<WsSocketListener> listener)
 	{
 		this(host, personalToken, listener, false);
