@@ -23,6 +23,7 @@ public class Team
 	public String allowed_domains;
 	public String invite_id; // What is this ?
 	public boolean allow_open_invite;
+	public String scheme_id;
 
 	public TeamId teamId()
 	{
@@ -159,4 +160,11 @@ public class Team
 		this.allow_open_invite = allow_open_invite;
 	}
 
+	public String getScheme_id() {
+		return scheme_id;
+	}
+
+	public void setScheme_id(String scheme_id) {
+		this.scheme_id = scheme_id;
+	}
 }

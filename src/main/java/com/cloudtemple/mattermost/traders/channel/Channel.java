@@ -28,6 +28,8 @@ public class Channel
 	public long total_msg_count;
 	public long extra_update_at;
 	public String creator_id;
+	public String scheme_id;
+	public String props;
 
 	public ChannelId channelId()
 	{
@@ -172,6 +174,22 @@ public class Channel
 	public void setCreator_id(final String creator_id)
 	{
 		this.creator_id = creator_id;
+	}
+
+	public String getScheme_id() {
+		return scheme_id;
+	}
+
+	public void setScheme_id(String scheme_id) {
+		this.scheme_id = scheme_id;
+	}
+
+	public String getProps() {
+		return props;
+	}
+
+	public void setProps(String props) {
+		this.props = props;
 	}
 
 	public Optional<Pair<Channel, UserId, UserId>> asDirect()

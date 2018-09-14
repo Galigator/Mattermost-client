@@ -24,6 +24,7 @@ public class User
 	public NotifyProps notify_props;
 	public long last_password_update;
 	public String locale;
+	public Timezone timezone;
 
 	public UserId userId()
 	{
@@ -210,4 +211,11 @@ public class User
 		this.locale = locale;
 	}
 
+	public Timezone getTimezone() {
+		return timezone;
+	}
+
+	public void setTimezone(Timezone timezone) {
+		this.timezone = timezone;
+	}
 }
