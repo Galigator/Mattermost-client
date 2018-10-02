@@ -43,7 +43,7 @@ class WebSocketClient {
 
         @Override
         public void onEvent(final Event event) {
-            // Trully don't care.
+            // Truly don't care.
         }
     };
 
