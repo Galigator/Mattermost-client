@@ -1,11 +1,18 @@
 package com.cloudtemple.mattermost.traders.team;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import com.fasterxml.jackson.annotation.JsonAnyGetter;
+import com.fasterxml.jackson.annotation.JsonAnySetter;
+
 public class TeamMember
 {
   private String teamId;
   private String userId;
   private String roles;
   private long deleteAt;
+  private Map<String, Object> data = new HashMap<String, Object>();
 
   public String getTeamId()
   {
@@ -44,6 +51,14 @@ public class TeamMember
     this.deleteAt = deleteAt;
   }
 
+  @JsonAnyGetter
+  public Map<String, Object> getData() {
+    return data;
+  }
 
+  @JsonAnySetter
+  public void setData(String name, Object value) {
+    this.data.put(name, value);
+  }
 
 }

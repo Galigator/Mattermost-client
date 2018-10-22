@@ -2,8 +2,11 @@ package com.cloudtemple.mattermost.traders.user;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 @SuppressWarnings("hiding")
 @XmlRootElement
+@JsonIgnoreProperties(ignoreUnknown = true)
  public class Timezone {
 
     public String automaticTimezone;
@@ -17,7 +20,7 @@ import javax.xml.bind.annotation.XmlRootElement;
     public void setManualTimezone(final String manualTimezone) {
         this.manualTimezone = manualTimezone;
     }
-    
+
     public boolean isUseAutomaticTimezone() {
         return useAutomaticTimezone;
     }

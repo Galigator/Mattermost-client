@@ -153,7 +153,7 @@ public class MatterMostBotClient {
         if (returnValue instanceof MatterMostClientObject) {
             ((MatterMostClientObject) returnValue).setClient(this);
         }
-        _logger.info("decode, returning " + returnValue);
+        _logger.fine("decode, returning " + returnValue);
         return returnValue;
   }
 
@@ -341,7 +341,7 @@ public class MatterMostBotClient {
     public class MatterMostEventDispatcher implements WsSocketListener {
     @Override
     public void onEvent(final Event event) {
-      _logger.info("MM:  onEvent()");
+      _logger.fine("MM:  onEvent()");
       for (WsSocketListener listener: eventListeners) {
         // dispatch to the general listener list
         try {
