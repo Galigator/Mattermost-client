@@ -196,7 +196,7 @@ public class MatterMostBotClient
 	{
 		try
 		{
-			final String str = (jsonPostBody instanceof String) ? (String) jsonPostBody : _json.writeValueAsString(jsonPostBody);
+			final String str = jsonPostBody instanceof String ? (String) jsonPostBody : _json.writeValueAsString(jsonPostBody);
 			_logger.fine(() -> "POST Path : " + path + "\t" + str);
 			final Response r;
 			synchronized (_client)
@@ -215,7 +215,7 @@ public class MatterMostBotClient
 	{
 		try
 		{
-			final String str = (jsonPostBody instanceof String) ? (String) jsonPostBody : _json.writeValueAsString(jsonPostBody);
+			final String str = jsonPostBody instanceof String ? (String) jsonPostBody : _json.writeValueAsString(jsonPostBody);
 			_logger.fine(() -> "POST Path : " + path + "\t" + str);
 			final Response r;
 			synchronized (_client)

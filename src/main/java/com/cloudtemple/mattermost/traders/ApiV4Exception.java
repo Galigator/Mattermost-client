@@ -23,7 +23,7 @@ public class ApiV4Exception extends RuntimeException
 
 	public ApiV4Exception(final com.cloudtemple.mattermost.traders.Error error)
 	{
-		super(error.getStatus_code() + " " + ((error.getDetailed_error() != null && (!"".equals(error.getDetailed_error()))) ? error.getDetailed_error() : error.getMessage()));
+		super(error.getStatus_code() + " " + (error.getDetailed_error() != null && !"".equals(error.getDetailed_error()) ? error.getDetailed_error() : error.getMessage()));
 		_error = error;
 	}
 

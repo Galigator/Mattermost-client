@@ -1,5 +1,9 @@
 package com.cloudtemple.mattermost.traders.channel;
 
+import javax.xml.bind.annotation.XmlRootElement;
+
+@SuppressWarnings("hiding")
+@XmlRootElement
 public class Props
 {
 	//	"delete_at", "display_name", "update_at", "name", "header", "creator_id", "scheme_id", "create_at", "type", "id", "team_id", "purpose", "last_post_at", "total_msg_count", "extra_update_at"
