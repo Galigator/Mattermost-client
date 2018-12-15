@@ -1,11 +1,11 @@
 # Mattermost-client
-A simple client for the api V4 of Mattermost compatible with Mattermost 4.1
+A simple client for the api V4 of Mattermost compatible with Mattermost 4.5
 The client aim at writing Bot for Mattermost.
 
 ### Pre-requist
- - Mattermost 4.1 with {*websockets*, *personal-access-token*} enables
- - Java 8.131+
- - Maven 3.3.9+
+ - Mattermost 4.5 with {*websockets*, *personal-access-token*} enables
+ - Java 8.181+
+ - Maven 3.5.3+
 
 
 ### The connexion is done with :
