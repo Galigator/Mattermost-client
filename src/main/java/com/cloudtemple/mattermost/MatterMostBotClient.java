@@ -33,7 +33,6 @@ import org.apache.cxf.jaxrs.client.WebClient;
 
 public class MatterMostBotClient
 {
-
 	public static final Logger _logger = Logger.getLogger(MatterMostBotClient.class.getName());
 
 	static
@@ -157,7 +156,7 @@ public class MatterMostBotClient
 			if (200 == status || 201 == status)
 				return new MappingJsonFactory().setCodec(new ObjectMapper().setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE)).createParser(str).readValueAs(t);
 			else
-				throw new ApiV4Exception(new MappingJsonFactory().createJsonParser(str).readValueAs(com.cloudtemple.mattermost.traders.Error.class));
+				throw new ApiV4Exception(new MappingJsonFactory().createParser(str).readValueAs(com.cloudtemple.mattermost.traders.Error.class));
 		}
 		catch (final IOException e)
 		{
@@ -178,7 +177,7 @@ public class MatterMostBotClient
 		final T returnValue = decode(r, t);
 		if (returnValue instanceof MatterMostClientObject)
 			((MatterMostClientObject) returnValue).setClient(this);
-		_logger.fine("decode, returning " + returnValue);
+		_logger.fine(() -> "decode, returning " + returnValue);
 		return returnValue;
 	}
 
@@ -407,7 +406,7 @@ public class MatterMostBotClient
 				{
 					listener.onEvent(event);
 				}
-				catch (final Exception e)
+				catch (@SuppressWarnings("unused") final Exception e)
 				{
 					// ignore; listeners should really handle their own exceptions
 				}
@@ -423,7 +422,7 @@ public class MatterMostBotClient
 						{
 							listener.onEvent(event);
 						}
-						catch (final Exception e)
+						catch (@SuppressWarnings("unused") final Exception e)
 						{
 							// ignore; listeners should really handle their own exceptions
 						}
