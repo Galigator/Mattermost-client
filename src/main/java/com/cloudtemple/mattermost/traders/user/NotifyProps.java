@@ -25,8 +25,53 @@ public class NotifyProps
 	public long desktop_duration;
 	public String push_status;
 	public String userId;
+	public String user_id;
 	public String addedUserId;
 	private final Map<String, Object> data = new ConcurrentHashMap<>();
+	public boolean auto_responder_active;
+	public String auto_responder_message;
+	public String new_header;
+	public String old_header;
+
+	public String getNew_header()
+	{
+		return new_header;
+	}
+
+	public void setNew_header(final String new_header)
+	{
+		this.new_header = new_header;
+	}
+
+	public String getOld_header()
+	{
+		return old_header;
+	}
+
+	public void setOld_header(final String old_header)
+	{
+		this.old_header = old_header;
+	}
+
+	public boolean isAuto_responder_active()
+	{
+		return auto_responder_active;
+	}
+
+	public void setAuto_responder_active(final boolean auto_responder_active)
+	{
+		this.auto_responder_active = auto_responder_active;
+	}
+
+	public String getAuto_responder_message()
+	{
+		return auto_responder_message;
+	}
+
+	public void setAuto_responder_message(final String auto_responder_message)
+	{
+		this.auto_responder_message = auto_responder_message;
+	}
 
 	public String getUsername()
 	{
@@ -199,5 +244,4 @@ public class NotifyProps
 	{
 		data.put(name, value);
 	}
-
 }
