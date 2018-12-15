@@ -1,6 +1,13 @@
 package com.cloudtemple.mattermost.traders.user;
 
+import java.util.HashMap;
+import java.util.Map;
 import javax.xml.bind.annotation.XmlRootElement;
+
+import com.cloudtemple.mattermost.MatterMostBotClient;
+
+import com.fasterxml.jackson.annotation.JsonAnyGetter;
+import com.fasterxml.jackson.annotation.JsonAnySetter;
 
 @SuppressWarnings("hiding")
 @XmlRootElement
@@ -20,9 +27,9 @@ public class NotifyProps { // Nothing documented for this class :-(
     public String comments;
     public long desktop_duration;
     public String push_status;
-    public String user_id;
     public String userId;
     public String addedUserId;
+    private Map<String, Object> data = new HashMap<String, Object>();
 
     public String getUsername() {
         return username;
@@ -136,14 +143,6 @@ public class NotifyProps { // Nothing documented for this class :-(
         this.push_status = push_status;
     }
 
-    public String getUser_id() {
-        return user_id;
-    }
-
-    public void setUser_id(final String user_id) {
-        this.user_id = user_id;
-    }
-
     public String getAddedUserId() {
         return addedUserId;
     }
@@ -159,4 +158,16 @@ public class NotifyProps { // Nothing documented for this class :-(
     public void setUserId(final String userId) {
         this.userId = userId;
     }
+
+
+  @JsonAnyGetter
+  public Map<String, Object> getData() {
+    return data;
+  }
+
+  @JsonAnySetter
+  public void setData(String name, Object value) {
+    this.data.put(name, value);
+  }
+
 }

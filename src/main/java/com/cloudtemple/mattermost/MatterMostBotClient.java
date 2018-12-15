@@ -2,13 +2,19 @@ package com.cloudtemple.mattermost;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.ws.rs.core.Response;
 
 import com.cloudtemple.mattermost.traders.ApiV4Exception;
+import com.cloudtemple.mattermost.traders.Event;
+import com.cloudtemple.mattermost.traders.MatterMostClientObject;
 import com.cloudtemple.mattermost.traders.channel.Channel;
 import com.cloudtemple.mattermost.traders.channel.ChannelId;
 import com.cloudtemple.mattermost.traders.file.File;
@@ -24,8 +30,9 @@ import com.cloudtemple.mattermost.traders.user.User;
 import com.cloudtemple.mattermost.traders.user.UserId;
 
 import org.apache.cxf.jaxrs.client.WebClient;
-import org.codehaus.jackson.map.MappingJsonFactory;
-import org.codehaus.jackson.map.ObjectMapper;
+import com.fasterxml.jackson.databind.MappingJsonFactory;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 
 public class MatterMostBotClient {
 
@@ -36,9 +43,12 @@ public class MatterMostBotClient {
     }
 
     public static final String apiV4 = "/api/v4";
-    private final ObjectMapper _json = new ObjectMapper();
+    private final ObjectMapper _json = new ObjectMapper().setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE);
     private final WebClient _client;
     private final WebSocketClient _asyncClient;
+
+    private Set<WsSocketListener> eventListeners = new HashSet<>();
+    private Map<String,Set<WsSocketListener>> channelListeners = new HashMap<>();
 
     public MatterMostBotClient(final String host, final String personalToken, final Optional<WsSocketListener> listener,
             boolean secure) {
@@ -53,7 +63,10 @@ public class MatterMostBotClient {
         final String bearer = "Bearer " + personalToken;
         client.header("Authorization", bearer);
         _client = client;
-        _asyncClient = new WebSocketClient(wsProtocol + host + apiV4 + "/websocket", bearer, listener);
+        if (listener.isPresent()) {
+            eventListeners.add(listener.get());
+        }
+      _asyncClient = new WebSocketClient(wsProtocol + host + apiV4 + "/websocket", bearer, Optional.of(new MatterMostEventDispatcher()));
     }
 
     public MatterMostBotClient(final String host, final String personalToken,
@@ -117,7 +130,7 @@ public class MatterMostBotClient {
     public static <T> T decode(final int status, final String str, final Class<T> t) {
         try {
             if (200 == status || 201 == status) {
-                return new MappingJsonFactory().createJsonParser(str).readValueAs(t);
+                return new MappingJsonFactory().setCodec(new ObjectMapper().setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE)).createParser(str).readValueAs(t);
             } else {
                 throw new ApiV4Exception(new MappingJsonFactory().createJsonParser(str)
                         .readValueAs(com.cloudtemple.mattermost.traders.Error.class));
@@ -134,17 +147,27 @@ public class MatterMostBotClient {
         return decode(r.getStatus(), str, t);
     }
 
-    private <T> T get(final String path, final Class<T> t) {
+    protected <T> T decodeClientObject(final Response r, final Class<T> t)
+  {
+        T returnValue = decode(r, t);
+        if (returnValue instanceof MatterMostClientObject) {
+            ((MatterMostClientObject) returnValue).setClient(this);
+        }
+        _logger.fine("decode, returning " + returnValue);
+        return returnValue;
+  }
+
+    public <T> T get(final String path, final Class<T> t) {
         _logger.fine(() -> "GET Path : " + path);
         final Response r;
         synchronized (_client) // If you don't want synchronization, look at the webSocket client.
         {
             r = _client.replacePath(path).accept("application/json").get();
         }
-        return decode(r, t);
+        return decodeClientObject(r, t);
     }
 
-    private <T> T post(final String path, final Object jsonPostBody, final Class<T> t) {
+    public <T> T post(final String path, final Object jsonPostBody, final Class<T> t) {
         try {
             final String str = (jsonPostBody instanceof String) ? (String) jsonPostBody : _json.writeValueAsString(
                     jsonPostBody);
@@ -153,11 +176,72 @@ public class MatterMostBotClient {
             synchronized (_client) {
                 r = _client.replacePath(path).accept("application/json").post(str);
             }
-            return decode(r, t);
+            return decodeClientObject(r, t);
         } catch (final Exception e) {
             throw new ApiV4Exception(e);
         }
     }
+
+  public <T> T put(final String path, final Object jsonPostBody, final Class<T> t)
+  {
+    try
+    {
+      final String str = (jsonPostBody instanceof String) ? (String) jsonPostBody : _json.writeValueAsString(jsonPostBody);
+      _logger.fine(() -> "POST Path : " + path + "\t" + str);
+      final Response r;
+      synchronized (_client)
+      {
+        r = _client.replacePath(path).accept("application/json").put(str);
+      }
+      return decodeClientObject(r, t);
+    }
+    catch (final Exception e)
+    {
+      throw new ApiV4Exception(e);
+    }
+  }
+
+  public <T> T delete(final String path, final Class<T> t)
+  {
+    try
+    {
+      final Response r;
+      synchronized (_client)
+      {
+        r = _client.replacePath(path).accept("application/json").delete();
+      }
+      return decodeClientObject(r, t);
+    }
+    catch (final Exception e)
+    {
+      throw new ApiV4Exception(e);
+    }
+  }
+
+  public void addEventListener(WsSocketListener listener) {
+    eventListeners.add(listener);
+  }
+  public void removeEventListener(WsSocketListener listener) {
+    eventListeners.remove(listener);
+  }
+  public void addChannelListener(String channelId, WsSocketListener listener) {
+    Set<WsSocketListener> listeners = channelListeners.get(channelId);
+    if (listeners == null) {
+      listeners = new HashSet<>();
+      channelListeners.put(channelId, listeners);
+    }
+    listeners.add(listener);
+  }
+  public void removeChannelListener(String channelId, WsSocketListener listener) {
+    Set<WsSocketListener> listeners = channelListeners.get(channelId);
+    if (listeners != null) {
+      listeners.remove(listener);
+      if (listeners.isEmpty()) {
+        channelListeners.remove(channelId);
+      }
+    }
+  }
+
 
     public User getUsersMe() {
         return get("/users/me", User.class);
@@ -169,6 +253,11 @@ public class MatterMostBotClient {
 
     public User[] getUsers() {
         return get("/users", User[].class);
+    }
+
+    public User getUserByUsername(String username)
+    {
+        return get("/users/username/" + username, User.class);
     }
 
     public Team[] getTeams() {
@@ -239,4 +328,47 @@ public class MatterMostBotClient {
     public Channel[] getChannelsForUser(final UserId userId, final TeamId teamId) {
         return get("/users/" + userId + "/teams/" + teamId + "/channels", Channel[].class);
     }
+
+    public Team createTeam(final String teamId, final String displayName, final boolean open)
+  {
+    Map<String, String> body = new HashMap<>();
+    body.put("name", teamId);
+    body.put("display_name", displayName);
+    body.put("type", open ? "O" : "I");
+    return post("/teams", body, Team.class);
+  }
+
+    public class MatterMostEventDispatcher implements WsSocketListener {
+    @Override
+    public void onEvent(final Event event) {
+      _logger.fine("MM:  onEvent()");
+      for (WsSocketListener listener: eventListeners) {
+        // dispatch to the general listener list
+        try {
+          listener.onEvent(event);
+        } catch (Exception e) {
+          // ignore; listeners should really handle their own exceptions
+        }
+      }
+      Object channelId = event.data.get("channel_id");
+      if (channelId == null) {
+        channelId = event.broadcast.get("channel_id");
+      }
+      if (channelId != null && channelId instanceof String) {
+        Set<WsSocketListener> cListeners = channelListeners.get(channelId);
+        if (cListeners != null && ! cListeners.isEmpty()) {
+          for (WsSocketListener listener: cListeners) {
+            try {
+              listener.onEvent(event);
+            } catch (Exception e) {
+              // ignore; listeners should really handle their own exceptions
+            }
+          }
+        }
+      }
+    }
+
+  }
+
+
 }
